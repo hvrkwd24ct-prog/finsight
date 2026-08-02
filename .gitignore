@@ -1,2 +1,9 @@
 .claude/settings.local.json
 .DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/

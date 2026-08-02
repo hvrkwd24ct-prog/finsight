@@ -17,6 +17,23 @@ offline.
 Run. Requires Xcode 16+ (macOS 14+ / iOS 17+). To install on your own device,
 set a Team under the target's Signing & Capabilities tab.
 
+## Keeping your data
+
+Browsers treat ordinary site storage as disposable. iOS Safari is the strictest:
+it clears script-writable storage from any site you haven't opened in about a
+week. Two things reduce the risk, and one removes it:
+
+- **Add to Home Screen** (Share → Add to Home Screen). The page declares itself a
+  web app, so it gets a storage container of its own rather than sharing
+  Safari's — and note that means it starts empty, separate from whatever is in
+  the Safari tab.
+- **Settings → Backup & data → Storage** reports whether this browser has
+  promised to keep the data, how much is stored, and which container you are in.
+- **The native app** stores in its own app container, which nothing sweeps.
+
+Export a backup either way. Restoring it is how data moves between the browser,
+the Home Screen app and the native app — they are three separate stores.
+
 ## Layout
 
 ```

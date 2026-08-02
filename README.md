@@ -6,8 +6,11 @@ recommendations.
 
 **Everything stays on your device.** Data lives in the browser's `localStorage`
 (or the app's own storage on macOS/iOS). There is no server, no account, and no
-network call — the page carries React, Babel and pdf.js inline and works fully
-offline.
+network call at all — React, Babel, pdf.js and the three typefaces are carried
+inline, so the page makes zero requests and works fully offline.
+
+Fonts are Archivo, IBM Plex Mono and Inter, embedded as woff2 data URIs (latin
+subset, ~150 KB total) under the SIL Open Font License.
 
 ## Running it
 

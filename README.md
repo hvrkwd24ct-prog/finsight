@@ -20,6 +20,14 @@ subset, ~150 KB total) under the SIL Open Font License.
 Run. Requires Xcode 16+ (macOS 14+ / iOS 17+). To install on your own device,
 set a Team under the target's Signing & Capabilities tab.
 
+## Getting around
+
+The app is phone-first everywhere — one column and a floating dock of five
+tabs, even on a desktop monitor. **Home** is the day-to-day picture, **Accounts**
+is everything you hold, **Budget** is what comes in, goes out and is due,
+**Insights** is trends, goals and tips, and **Settings** holds imports, backups
+and preferences. Deeper screens push on top of their tab and carry a back pill.
+
 ## Keeping your data
 
 Browsers treat ordinary site storage as disposable. iOS Safari is the strictest:

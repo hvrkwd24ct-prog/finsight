@@ -49,6 +49,20 @@ The native wrapper exists to supply the things a bare web view doesn't:
 `alert`/`confirm`/`prompt` bridged to `NSAlert`/`UIAlertController`, and file
 exports bridged to a save panel (macOS) or share sheet (iOS).
 
+## What it tracks
+
+Current accounts, savings, pots, credit cards and non-investment ISAs (cash,
+Lifetime, Help to Buy, IF, Junior) live under **Accounts**. Stocks & Shares
+ISAs, general investing, bonds (gilts, index-linked, corporate, Premium Bonds,
+fixed-rate, funds) and crypto live under **Investments** — a broker like
+Trading 212 is a name you give an account, not a kind of account.
+
+**Mortgage** takes what you still owe, the rate and the term, and works out the
+monthly payment, the interest/capital split, when it clears and what an
+overpayment would save. The payment shows up in **Recurring** automatically —
+it is derived from the mortgage, so it cannot drift out of step. The debt counts
+against net worth and any property value you enter counts toward it.
+
 ## Importing data
 
 Bank and credit card statements (CSV or PDF), savings, ISA and broker exports,

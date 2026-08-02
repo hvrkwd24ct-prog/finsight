@@ -5,9 +5,16 @@ investments in one place, with targets, monthly reviews and adviser-style
 recommendations.
 
 **Everything stays on your device.** Data lives in the browser's `localStorage`
-(or the app's own storage on macOS/iOS). There is no server, no account, and no
-network call at all — React, Babel, pdf.js and the three typefaces are carried
-inline, so the page makes zero requests and works fully offline.
+(or the app's own storage on macOS/iOS). There is no server and no account —
+React, Babel, pdf.js and the three typefaces are carried inline, so the page
+makes zero requests and works fully offline.
+
+The one exception is **live prices**, which are off until you switch them on in
+Settings. Enabled, FinSight fetches quotes for holdings where you have entered a
+number of units: crypto from CoinGecko (free, no sign-up) and shares from Twelve
+Data (needs a free API key of your own). Only the ticker symbols are sent —
+never balances, transactions or anything else. Leave it off and the app never
+touches the network.
 
 Fonts are Archivo, IBM Plex Mono and Inter, embedded as woff2 data URIs (latin
 subset, ~150 KB total) under the SIL Open Font License.

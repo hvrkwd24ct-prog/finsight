@@ -41,7 +41,15 @@ its own — an account's name, colour, balance correction — a gear sits beside
 
 Boxes glow in the colour of what they are telling you: green when a figure is
 up, red when it is down, an account's own colour around anything belonging to
-that account. A glow always means something, so most cards don't have one.
+that account, and a quiet slate around any other box holding a money figure.
+
+Month-shaped cards can be swiped sideways to walk back through earlier months,
+or stepped with the arrows in their title. On Home they share one cursor, so a
+swipe moves the whole picture together rather than leaving half the screen in
+another month.
+
+A month-on-month change is only shown once there is a previous month to compare
+with — the first balance you enter is your starting point, not a gain.
 
 ## Keeping your data
 

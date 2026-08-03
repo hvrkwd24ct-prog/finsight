@@ -33,7 +33,10 @@ The app is phone-first everywhere — one column and a floating dock of five
 tabs, even on a desktop monitor. **Home** is the day-to-day picture, **Accounts**
 is everything you hold, **Budget** is what comes in, goes out and is due,
 **Insights** is trends, goals and tips, and **Settings** holds imports, backups
-and preferences. Deeper screens push on top of their tab and carry a back pill.
+and preferences. Deeper screens push on top of their tab and carry a back pill
+that returns you to wherever you came from, not to the top of the tab. The
+hamburger in the top-right corner of every screen opens the full list of
+sections, so nothing is more than two taps away.
 
 ## Keeping your data
 

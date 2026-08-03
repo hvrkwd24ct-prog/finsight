@@ -36,7 +36,12 @@ is everything you hold, **Budget** is what comes in, goes out and is due,
 and preferences. Deeper screens push on top of their tab and carry a back pill
 that returns you to wherever you came from, not to the top of the tab. The
 hamburger in the top-right corner of every screen opens the full list of
-sections, so nothing is more than two taps away.
+sections, so nothing is more than two taps away; where a screen has settings of
+its own — an account's name, colour, balance correction — a gear sits beside it.
+
+Boxes glow in the colour of what they are telling you: green when a figure is
+up, red when it is down, an account's own colour around anything belonging to
+that account. A glow always means something, so most cards don't have one.
 
 ## Keeping your data
 

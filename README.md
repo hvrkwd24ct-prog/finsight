@@ -51,6 +51,13 @@ another month.
 A month-on-month change is only shown once there is a previous month to compare
 with — the first balance you enter is your starting point, not a gain.
 
+Home's **money in vs out** puts one bar for what came in beside one for what went
+out, and the money-out bar is split into the bills you are committed to and the
+day-to-day spending on top of them. Money out is everything that left any account
+you spend from, credit cards included — a card purchase counts the day you make
+it, not the day you pay the bill, and paying the bill is an internal transfer that
+is deliberately left out rather than counted twice.
+
 ## Keeping your data
 
 Browsers treat ordinary site storage as disposable. iOS Safari is the strictest:

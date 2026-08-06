@@ -58,6 +58,19 @@ you spend from, credit cards included — a card purchase counts the day you mak
 it, not the day you pay the bill, and paying the bill is an internal transfer that
 is deliberately left out rather than counted twice.
 
+**Where you're heading** is a dial. The needle sits on today's net worth, the arc
+runs to whatever goal you have set, a green mark shows where a year of the current
+pace would land you, and the round numbers on the way are ticks along it. The pace
+it runs at is what a month leaves you with — everything in, less everything out —
+read either from your last recorded month or averaged across the last few, your
+choice on the card.
+
+Nothing on Home is fixed. Every block on it, the net worth total included, can be
+turned off or moved with **Edit home** at the foot of the screen; the order and the
+hidden set are yours and they persist. **Budget** is a board of tiles instead —
+spending, money in, bills and subs, the next payment with a countdown — each one
+opening the screen that answers it in full.
+
 ## Keeping your data
 
 Browsers treat ordinary site storage as disposable. iOS Safari is the strictest:

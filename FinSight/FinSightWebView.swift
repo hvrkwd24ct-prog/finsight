@@ -88,22 +88,24 @@ final class FinSightWebController: PlatformViewController {
 
 extension FinSightWebController: WKNavigationDelegate {
 
-    /// The dashboard is entirely local. Anything that tries to leave it (a documentation
-    /// link, say) opens in the user's real browser instead of replacing the app.
+    /// The dashboard is entirely local, so the only navigation this web view should ever perform
+    /// is to the bundled file. A tapped link to the web opens in the user's real browser; a
+    /// remote address the page tried to navigate to *itself* is refused outright, because the
+    /// only way that happens is something going wrong — and a remote page loaded into the app's
+    /// own chrome, with no address bar to contradict it, is a convincing place to ask for a PIN.
     func webView(_ webView: WKWebView,
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        guard let url = navigationAction.request.url else {
-            decisionHandler(.allow)
-            return
-        }
-        if navigationAction.navigationType == .linkActivated,
-           url.scheme == "http" || url.scheme == "https" {
-            openExternally(url)
+        guard let url = navigationAction.request.url, let scheme = url.scheme?.lowercased() else {
             decisionHandler(.cancel)
             return
         }
-        decisionHandler(.allow)
+        if scheme == "http" || scheme == "https" {
+            if navigationAction.navigationType == .linkActivated { openExternally(url) }
+            decisionHandler(.cancel)
+            return
+        }
+        decisionHandler(scheme == "file" || scheme == "about" ? .allow : .cancel)
     }
 
     private func openExternally(_ url: URL) {
@@ -152,11 +154,16 @@ extension FinSightWebController: WKScriptMessageHandler {
     }
     #else
     private func save(data: Data, suggestedName: String) {
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent(suggestedName)
+        // The name comes from a `download` attribute in the web layer, so it is not ours to
+        // trust: "../../Library/Preferences/x.plist" would append cleanly and write outside the
+        // temporary directory. Take the last path component only, and fall back if that is empty.
+        let leaf = (suggestedName as NSString).lastPathComponent
+        let safeName = leaf.isEmpty || leaf == "." || leaf == ".." ? "finsight-export" : leaf
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(safeName)
         do {
             try data.write(to: url, options: .atomic)
         } catch {
-            present(message: "Couldn't prepare \(suggestedName) for export.")
+            present(message: "Couldn't prepare \(safeName) for export.")
             return
         }
         let share = UIActivityViewController(activityItems: [url], applicationActivities: nil)

@@ -9,12 +9,14 @@ recommendations.
 React, Babel, pdf.js and the three typefaces are carried inline, so the page
 makes zero requests and works fully offline.
 
-The one exception is **live prices**, which are off until you switch them on in
-Settings. Enabled, FinSight fetches quotes for holdings where you have entered a
-number of units: crypto from CoinGecko (free, no sign-up) and shares from Twelve
-Data (needs a free API key of your own). Only the ticker symbols are sent —
-never balances, transactions or anything else. Leave it off and the app never
-touches the network.
+There is no exception. Live prices used to be one — quotes from CoinGecko and
+Twelve Data, the latter wanting an API key you pasted in — and that is gone.
+Holdings are worth the price you type, like every other figure here. There is no
+key to obtain, nowhere to paste one, and nothing in the app that would use it.
+The page's Content-Security-Policy sets `connect-src 'none'`, so an outbound
+request is refused by the browser rather than merely absent from the code, and
+the macOS app deliberately does not hold the network entitlement, so the
+operating system refuses one too.
 
 Fonts are Archivo, IBM Plex Mono and Inter, embedded as woff2 data URIs (latin
 subset, ~150 KB total) under the SIL Open Font License.
@@ -117,8 +119,33 @@ overpayment would save. The payment shows up in **Recurring** automatically —
 it is derived from the mortgage, so it cannot drift out of step. The debt counts
 against net worth and any property value you enter counts toward it.
 
-## Importing data
+## Files it will open
 
-Bank and credit card statements (CSV or PDF), savings, ISA and broker exports,
-crypto exchange CSVs, and FinSight's own JSON backups. Column mappings are
-remembered per provider. Parsing happens locally in the page.
+Two, and only two: a **payslip PDF**, which it reads the figures off for you to
+check, and its own **JSON backup**. Statement importing is gone — accounts,
+balances and spending are typed in, which is why what the app holds is always
+what you told it rather than what a parser guessed. Anything else is refused by
+name, and anything over 32 MB by size.
+
+Both are read in the page, and both are treated as hostile, because a file you
+were handed is not a file you wrote. The PDF is parsed with pdf.js's `eval` path
+switched off (`isEvalSupported: false`) — that is the mitigation for
+CVE-2024-4367, where a crafted font program runs its own JavaScript in the page.
+A restored backup is copied key by key onto a fresh state rather than merged in,
+so a file cannot introduce keys the app does not have, and cannot name
+`__proto__` to reach the prototype of the object it is being copied into.
+
+## What the lock is, and is not
+
+Settings offers a PIN, with Face ID on top of it. It is a privacy screen: it
+keeps your balances off the screen and out of the page when someone else is
+holding the phone. That is worth having and it is all it is.
+
+It is **not encryption.** The figures sit in the browser's storage exactly as
+readable as they were before you set it, so anyone who can open developer tools
+or reach the storage file can read them without going near the PIN, and the
+"5 tries" counter lives in memory and resets on reload. Four digits could not be
+made hard to reverse anyway. Nothing that leaves the device carries it either:
+an exported backup deliberately omits the lock, since the salt and the hash of a
+four-digit PIN in the same file is not a hash, it is the PIN — and people reuse
+those four digits on the phone itself.

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Only the keys Xcode cannot generate from build settings live here; everything else
+	  (display name, orientations, Face ID usage string, scene manifest) is an INFOPLIST_KEY_*
+	  in the target's build settings and is merged into this file at build time.
+	-->
+
+	<!--
+	  Long-press the Home Screen icon and land on the thing you opened the app to do, rather
+	  than on Home with three taps still to go. These are the three jobs of the monthly sit-down.
+	  The types are matched in QuickActionRouter.
+	-->
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.ryanwalsh.FinSight.balances</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Update balances</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>Type in what each account says</string>
+			<key>UIApplicationShortcutItemIconType</key>
+			<string>UIApplicationShortcutIconTypeUpdate</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.ryanwalsh.FinSight.spend</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Add spending</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>What the month cost</string>
+			<key>UIApplicationShortcutItemIconType</key>
+			<string>UIApplicationShortcutIconTypeCompose</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.ryanwalsh.FinSight.payslip</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Add payslip</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>Drop the PDF in</string>
+			<key>UIApplicationShortcutItemIconType</key>
+			<string>UIApplicationShortcutIconTypeAdd</string>
+		</dict>
+	</array>
+
+	<!--
+	  A launch screen painted the dashboard's own background, so the moment before first paint
+	  is the same colour as the app rather than a white flash.
+	-->
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
+
+	<!--
+	  Backups are ordinary JSON and belong to the person who made them. Exposing the app's
+	  documents in Files means a backup can be dragged out, kept, or handed to a new phone
+	  without going through the share sheet at all.
+	-->
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+</dict>
+</plist>

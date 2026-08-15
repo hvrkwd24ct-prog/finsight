@@ -1,151 +1,102 @@
-# FinSight
+# FinSight for iPhone
 
-A self-contained personal finance dashboard — bank statements, savings, ISAs and
-investments in one place, with targets, monthly reviews and adviser-style
-recommendations.
+A personal finance dashboard you fill in yourself — accounts, savings, ISAs, investments,
+spending, goals and payoff strategies — built as an iPhone app.
 
-**Everything stays on your device.** Data lives in the browser's `localStorage`
-(or the app's own storage on macOS/iOS). There is no server and no account —
-React, Babel, pdf.js and the three typefaces are carried inline, so the page
-makes zero requests and works fully offline.
+**This branch is the iPhone app.** `main` carries the same dashboard as a web page that also
+happens to run on a Mac; this one drops the Mac, drops the browser as a target, and spends the
+difference on being an app. If you want the web version, it is on `main`.
 
-There is no exception. Live prices used to be one — quotes from CoinGecko and
-Twelve Data, the latter wanting an API key you pasted in — and that is gone.
-Holdings are worth the price you type, like every other figure here. There is no
-key to obtain, nowhere to paste one, and nothing in the app that would use it.
-The page's Content-Security-Policy sets `connect-src 'none'`, so an outbound
-request is refused by the browser rather than merely absent from the code, and
-the macOS app deliberately does not hold the network entitlement, so the
-operating system refuses one too.
+**Everything stays on your device.** No account, no server, no sign-up, nothing uploaded. The
+dashboard is one self-contained `index.html` in the app bundle with React, Babel, pdf.js and the
+typefaces all inlined, so there is no build step and nothing to fetch — the app opens on a plane
+and in a tunnel exactly as it does anywhere else.
 
-Fonts are Archivo, IBM Plex Mono and Inter, embedded as woff2 data URIs (latin
-subset, ~150 KB total) under the SIL Open Font License.
+## How it is built, and why not Capacitor
+
+The usual answer to "turn a web app into an iOS app" is Capacitor, and for most projects it is
+the right one: it keeps your web code, gives you a native project, and hands you a plugin
+ecosystem for the device APIs. None of that pays off here. FinSight has no build pipeline to
+preserve — it is a single HTML file, deliberately — so Capacitor would introduce `node_modules`,
+a build step and its own runtime in exchange for plugins the app does not call. The thing it
+sells is already what this repo has.
+
+So: **WKWebView, loading the bundled file directly**, with a small native layer written for this
+app. The part that matters is what is in that layer. Apple's Guideline 4.2 exists precisely to
+reject a web view with an icon on it, and rightly — an app that is only a bookmark should be a
+bookmark. Everything below is something a browser cannot do, and each one is a thing you would
+actually want on a finance app you keep on your phone.
+
+| | |
+|---|---|
+| **Face ID / passcode gate** | `LAContext`, evaluated by iOS, in front of the dashboard before it is loaded. Wrong attempts are locked out by the system, not by a counter in a page that a reload resets. Falls through to the device passcode, so a failed scan never locks you out of your own figures. Off until you turn it on. |
+| **App switcher shade** | The snapshot iOS takes when you swipe away is covered before it is taken. A card in the switcher showing your balances is the leak that needs no attacker at all. |
+| **Home Screen quick actions** | Long-press the icon for *Update balances*, *Add spending* or *Add payslip* — the three jobs of the monthly sit-down — and land on that screen. Handled on cold launch and while running. |
+| **Share sheet exports** | `<a download>` does nothing inside a web view. Backups are intercepted and handed to the real share sheet: Files, iCloud Drive, AirDrop, Mail. |
+| **Files import** | Restore a backup straight from Files or iCloud, which a page in a browser cannot reach. It goes through the same guarded restore as any other file. |
+| **Haptics** | A confirmation you can feel without looking. |
+| **Offline by construction** | The page is in the bundle. There is no remote page to fail to arrive and no white screen where one would have been. |
+
+The same `index.html` still runs in a browser. Every native call is feature-detected against
+`window.__finsightNative`, so on a laptop none of it exists and the app behaves as it always did.
+
+### The bridge
+
+One `WKScriptMessageHandler` named `finsight`, one `action` field, one switch statement you can
+read in full — rather than a handler per feature. It carries `ready`, `save`, `import`, `haptic`
+and `setLock`, and nothing in it accepts a path or a URL that Swift then acts on blindly.
+
+```
+FinSight/
+  FinSightApp.swift    app entry, scene phase, quick action routing
+  AppLock.swift        Face ID / passcode gate and the privacy shade
+  WebHost.swift        the WKWebView, navigation policy, share sheet, Files picker
+  NativeBridge.swift   the one message channel, and the script injected into the page
+  Info.plist           quick actions, launch screen, Files exposure
+index.html             the dashboard itself — copied into the bundle, not a duplicate
+```
+
+The Xcode project references `index.html` at the repo root rather than a copy, so there is no
+sync step.
 
 ## Running it
 
-**In a browser** — open `index.html`. That's the whole app.
+Open `FinSight.xcodeproj`, pick an iPhone (or a simulator), Run. Xcode 16+, iOS 17+. To install
+on your own device, set a Team under Signing & Capabilities.
 
-**As a Mac or iPhone app** — open `FinSight.xcodeproj`, pick a destination and
-Run. Requires Xcode 16+ (macOS 14+ / iOS 17+). To install on your own device,
-set a Team under the target's Signing & Capabilities tab.
+iPhone only, portrait only, dark. `TARGETED_DEVICE_FAMILY = 1`.
 
-## Getting around
+## Security
 
-The app is phone-first everywhere — one column and a floating dock of five
-tabs, even on a desktop monitor. **Home** is the day-to-day picture, **Accounts**
-is everything you hold, **Budget** is what comes in, goes out and is due,
-**Insights** is trends, goals and tips, and **Settings** holds imports, backups
-and preferences. Deeper screens push on top of their tab and carry a back pill
-that returns you to wherever you came from, not to the top of the tab. The
-hamburger in the top-right corner of every screen opens the full list of
-sections, so nothing is more than two taps away; where a screen has settings of
-its own — an account's name, colour, balance correction — a gear sits beside it.
+The same posture as the web version, plus what the platform adds.
 
-Boxes glow in the colour of what they are telling you: green when a figure is
-up, red when it is down, an account's own colour around anything belonging to
-that account, and a quiet slate around any other box holding a money figure.
-
-Month-shaped cards can be swiped sideways to walk back through earlier months,
-or stepped with the arrows in their title. On Home they share one cursor, so a
-swipe moves the whole picture together rather than leaving half the screen in
-another month.
-
-A month-on-month change is only shown once there is a previous month to compare
-with — the first balance you enter is your starting point, not a gain.
-
-Home's **money in vs out** puts one bar for what came in beside one for what went
-out, and the money-out bar is split into the bills you are committed to and the
-day-to-day spending on top of them. Money out is everything that left any account
-you spend from, credit cards included — a card purchase counts the day you make
-it, not the day you pay the bill, and paying the bill is an internal transfer that
-is deliberately left out rather than counted twice.
-
-**Where you're heading** is a dial. The needle sits on today's net worth, the arc
-runs to whatever goal you have set, a green mark shows where a year of the current
-pace would land you, and the round numbers on the way are ticks along it. The pace
-it runs at is what a month leaves you with — everything in, less everything out —
-read either from your last recorded month or averaged across the last few, your
-choice on the card.
-
-Nothing on Home is fixed. Every block on it, the net worth total included, can be
-turned off or moved with **Edit home** at the foot of the screen; the order and the
-hidden set are yours and they persist. **Budget** is a board of tiles instead —
-spending, money in, bills and subs, the next payment with a countdown — each one
-opening the screen that answers it in full.
-
-## Keeping your data
-
-Browsers treat ordinary site storage as disposable. iOS Safari is the strictest:
-it clears script-writable storage from any site you haven't opened in about a
-week. Two things reduce the risk, and one removes it:
-
-- **Add to Home Screen** (Share → Add to Home Screen). The page declares itself a
-  web app, so it gets a storage container of its own rather than sharing
-  Safari's — and note that means it starts empty, separate from whatever is in
-  the Safari tab.
-- **Settings → Backup & data → Storage** reports whether this browser has
-  promised to keep the data, how much is stored, and which container you are in.
-- **The native app** stores in its own app container, which nothing sweeps.
-
-Export a backup either way. Restoring it is how data moves between the browser,
-the Home Screen app and the native app — they are three separate stores.
-
-## Layout
-
-```
-index.html                 the entire dashboard — vendor libs, styles and app source
-FinSight/                  SwiftUI + WKWebView wrapper for macOS and iOS
-FinSight.xcodeproj/        single target, both platforms
-```
-
-The Xcode project references `index.html` at the repo root rather than a copy,
-so editing the dashboard updates both apps — no sync step.
-
-The native wrapper exists to supply the things a bare web view doesn't:
-`alert`/`confirm`/`prompt` bridged to `NSAlert`/`UIAlertController`, and file
-exports bridged to a save panel (macOS) or share sheet (iOS).
+- **Nothing leaves the device.** The page's Content-Security-Policy sets `connect-src 'none'`, so
+  an outbound request is refused by the browser engine. The app holds no network entitlement.
+  The web view is confined to `file:` and `about:` — a tapped link opens in Safari, and a remote
+  address the page navigated to itself is refused, because a remote page wearing the app's chrome
+  with no address bar to contradict it is a good place to ask somebody for a PIN.
+- **Files it opens are treated as hostile.** A payslip PDF is parsed with pdf.js's `eval` path
+  disabled (`isEvalSupported: false`, the mitigation for CVE-2024-4367). A restored backup is
+  copied key by key onto a fresh state, so it cannot introduce keys the app does not have or name
+  `__proto__` to reach a prototype. Nothing over 32 MB is read at all.
+- **Exports leave the lock behind.** A backup is made to travel, and the salt plus the hash of a
+  four-digit PIN in one file is not a hash, it is the PIN.
+- **The lock is a screen, not a safe.** Data in the app container is not encrypted. What the gate
+  stops is the person holding your unlocked phone, which is the threat that actually happens.
 
 ## What it tracks
 
-Current accounts, savings, pots, credit cards and non-investment ISAs (cash,
-Lifetime, Help to Buy, IF, Junior) live under **Accounts**. Stocks & Shares
-ISAs, general investing, bonds (gilts, index-linked, corporate, Premium Bonds,
-fixed-rate, funds) and crypto live under **Investments** — a broker like
-Trading 212 is a name you give an account, not a kind of account.
+Current accounts, savings, pots, credit cards and cash ISAs under **Accounts**. Stocks & Shares
+ISAs, general investing, bonds and crypto under **Investments** — a broker like Trading 212 is a
+name you give an account, not a kind of account. **Mortgage** takes what you owe, the rate and the
+term and works out the payment, the interest split, when it clears and what an overpayment saves.
+**Goals** holds your targets; **Strategies** holds the rules of thumb and the debt payoff model,
+which takes each card's rate, how you pay it and any 0% window.
 
-**Mortgage** takes what you still owe, the rate and the term, and works out the
-monthly payment, the interest/capital split, when it clears and what an
-overpayment would save. The payment shows up in **Recurring** automatically —
-it is derived from the mortgage, so it cannot drift out of step. The debt counts
-against net worth and any property value you enter counts toward it.
+Five tabs: Home, Budget, Goals, Strategies, and Menu for everything else.
 
 ## Files it will open
 
-Two, and only two: a **payslip PDF**, which it reads the figures off for you to
-check, and its own **JSON backup**. Statement importing is gone — accounts,
-balances and spending are typed in, which is why what the app holds is always
-what you told it rather than what a parser guessed. Anything else is refused by
-name, and anything over 32 MB by size.
-
-Both are read in the page, and both are treated as hostile, because a file you
-were handed is not a file you wrote. The PDF is parsed with pdf.js's `eval` path
-switched off (`isEvalSupported: false`) — that is the mitigation for
-CVE-2024-4367, where a crafted font program runs its own JavaScript in the page.
-A restored backup is copied key by key onto a fresh state rather than merged in,
-so a file cannot introduce keys the app does not have, and cannot name
-`__proto__` to reach the prototype of the object it is being copied into.
-
-## What the lock is, and is not
-
-Settings offers a PIN, with Face ID on top of it. It is a privacy screen: it
-keeps your balances off the screen and out of the page when someone else is
-holding the phone. That is worth having and it is all it is.
-
-It is **not encryption.** The figures sit in the browser's storage exactly as
-readable as they were before you set it, so anyone who can open developer tools
-or reach the storage file can read them without going near the PIN, and the
-"5 tries" counter lives in memory and resets on reload. Four digits could not be
-made hard to reverse anyway. Nothing that leaves the device carries it either:
-an exported backup deliberately omits the lock, since the salt and the hash of a
-four-digit PIN in the same file is not a hash, it is the PIN — and people reuse
-those four digits on the phone itself.
+A **payslip PDF**, which it reads the figures off for you to check, and its own **JSON backup**.
+That is the list. Accounts, balances and spending are typed in, which is why what the app holds is
+always what you told it rather than what a parser guessed.
